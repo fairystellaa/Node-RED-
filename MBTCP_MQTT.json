@@ -1,0 +1,297 @@
+[
+    {
+        "id": "46fdfb409ae9db11",
+        "type": "tab",
+        "label": "MbTCP - MQTT",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "200250b839a4d1e9",
+        "type": "mqtt in",
+        "z": "46fdfb409ae9db11",
+        "name": "",
+        "topic": "AGRO F115/W/W1",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "0a188c353ac01751",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 250,
+        "y": 100,
+        "wires": [
+            [
+                "2093c2eb79b4ef53"
+            ]
+        ]
+    },
+    {
+        "id": "c8c13e7f6d7e5e2f",
+        "type": "mqtt out",
+        "z": "46fdfb409ae9db11",
+        "name": "",
+        "topic": "AGRO F115/Temperature/T57",
+        "qos": "1",
+        "retain": "true",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "0a188c353ac01751",
+        "x": 890,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "cb673e0df877d4ff",
+        "type": "inject",
+        "z": "46fdfb409ae9db11",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 220,
+        "y": 320,
+        "wires": [
+            [
+                "0babba306c708040"
+            ]
+        ]
+    },
+    {
+        "id": "0babba306c708040",
+        "type": "modbustcp-read",
+        "z": "46fdfb409ae9db11",
+        "name": "ModbusRead",
+        "topic": "",
+        "dataType": "HoldingRegister",
+        "adr": "11",
+        "quantity": "2",
+        "rate": "5",
+        "rateUnit": "s",
+        "server": "88924a013353abe3",
+        "ieeeType": "single",
+        "ieeeBE": true,
+        "x": 390,
+        "y": 320,
+        "wires": [
+            [
+                "f7fe206ecbf76ff0"
+            ]
+        ]
+    },
+    {
+        "id": "f7fe206ecbf76ff0",
+        "type": "change",
+        "z": "46fdfb409ae9db11",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload[0]",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 600,
+        "y": 320,
+        "wires": [
+            [
+                "c8c13e7f6d7e5e2f",
+                "f8ea0e6eadc87239"
+            ]
+        ]
+    },
+    {
+        "id": "b9e0e3967e24951f",
+        "type": "modbus-write",
+        "z": "46fdfb409ae9db11",
+        "name": "",
+        "showStatusActivities": false,
+        "showErrors": false,
+        "showWarnings": true,
+        "unitid": "",
+        "dataType": "MHoldingRegisters",
+        "adr": "14",
+        "quantity": "2",
+        "server": "1af3cc20e7c0120d",
+        "emptyMsgOnFail": false,
+        "keepMsgProperties": false,
+        "delayOnStart": false,
+        "startDelayTime": "",
+        "x": 760,
+        "y": 100,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "2093c2eb79b4ef53",
+        "type": "function",
+        "z": "46fdfb409ae9db11",
+        "name": "fun Float2Buf",
+        "func": "// Function node to split float into two 16-bit integers\nvar float = msg.payload; // Your float value\nvar buffer = Buffer.alloc(4);\nbuffer.writeFloatBE(float);\n\nvar highRegister = buffer.readUInt16BE(0);\nvar lowRegister = buffer.readUInt16BE(2);\n\nmsg.payload = {\n    value: [lowRegister,highRegister],  // Data to write\n   // 'fc': 16,                            // Function Code 16 (Write multiple registers)\n   // 'unitid': 1,                         // Unit ID\n   // 'address': 0,                        // Starting address\n   // 'quantity': 2                        // Number of registers to write\n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 100,
+        "wires": [
+            [
+                "660ea590fd210fce",
+                "b9e0e3967e24951f"
+            ]
+        ]
+    },
+    {
+        "id": "660ea590fd210fce",
+        "type": "debug",
+        "z": "46fdfb409ae9db11",
+        "name": "DataToMb",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "5a899a8399a08159",
+        "type": "comment",
+        "z": "46fdfb409ae9db11",
+        "name": "MQTT to MB TCP/IP",
+        "info": "fsadf\nds\nfsadfdf\nasd\nfsadfdfasd\nfsadfdfasdsdf\nasdf",
+        "x": 250,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "f8ea0e6eadc87239",
+        "type": "debug",
+        "z": "46fdfb409ae9db11",
+        "name": "DataToMQTT",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 840,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "19abe4e225cd014d",
+        "type": "comment",
+        "z": "46fdfb409ae9db11",
+        "name": "MB to TCP/IP MQTT",
+        "info": "fsadf\nds\nfsadfdf\nasd\nfsadfdfasd\nfsadfdfasdsdf\nasdf",
+        "x": 250,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "0a188c353ac01751",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "http://test.mosquitto.org",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "88924a013353abe3",
+        "type": "modbustcp-server",
+        "name": "loctest",
+        "host": "127.0.0.1",
+        "port": "502",
+        "unit_id": "1",
+        "reconnecttimeout": ""
+    },
+    {
+        "id": "1af3cc20e7c0120d",
+        "type": "modbus-client",
+        "name": "",
+        "clienttype": "tcp",
+        "bufferCommands": true,
+        "stateLogEnabled": false,
+        "queueLogEnabled": false,
+        "failureLogEnabled": true,
+        "tcpHost": "127.0.0.1",
+        "tcpPort": "502",
+        "tcpType": "DEFAULT",
+        "serialPort": "/dev/ttyUSB",
+        "serialType": "RTU-BUFFERD",
+        "serialBaudrate": "9600",
+        "serialDatabits": "8",
+        "serialStopbits": "1",
+        "serialParity": "none",
+        "serialConnectionDelay": "100",
+        "serialAsciiResponseStartDelimiter": "0x3A",
+        "unit_id": "1",
+        "commandDelay": "1",
+        "clientTimeout": "1000",
+        "reconnectOnTimeout": true,
+        "reconnectTimeout": "2000",
+        "parallelUnitIdsAllowed": true,
+        "showErrors": false,
+        "showWarnings": true,
+        "showLogs": true
+    }
+]
